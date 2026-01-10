@@ -7,16 +7,18 @@
 {% block conteudo  %}  
 
 <form method="post">
-    <input type="hidden" name="csrfmiddlewaretoken" value="PohNeyDFSIA86N4aBnhYiq0KadF9m9jKliScSSzt3BVO5lqKv19MgwAoi9ZcrrXl">
+    {% csrf_token %}
     <p>
     <label for="id_nome">Nome:</label>
-    <input type="text" name="nome" class="form-control" placeholder="Nome" maxlength="100" required id="id_nome">
+    <input type="text" name="nome" class="form-control" placeholder="Nome" maxlength="100" required id="id_nome" value="{{ form.nome.value|default_if_none:'' }}">
     </p>
 
     <p>
     <label for="id_ordem">Ordem:</label>
-    <input type="number" name="ordem" class="inteiro form-control" placeholder="" required id="id_ordem">
-    </p> <button class="btn btn-primary" type="submit">Enviar</button>
+    <input type="number" name="ordem" class="inteiro form-control" placeholder="" required id="id_ordem" value="{{ form.ordem.value|default_if_none:'' }}">
+    </p> <a class="btn btn-secondary" href="{% url 'categoria' %}" >Cancelar</a>
+    <button class="btn btn-primary" type="submit">Enviar</button>
+        
 </form>
 
 {% endblock %}

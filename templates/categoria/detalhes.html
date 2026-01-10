@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block titulo_conteudo %}
+  Detalhes da Categoria
+{% endblock %}
+
+{% block conteudo %}
+
+  <div class="card-body">
+    <p>
+      <label>ID:</label>
+      <input type="text" class="form-control" value="{{ categoria.id }}" disabled />
+    </p>
+
+    <p>
+      <label>Nome:</label>
+      <input type="text" class="form-control" value="{{ categoria.nome }}" disabled />
+    </p>
+
+    <p>
+      <label>Ordem:</label>
+      <input type="text" class="form-control" value="{{ categoria.ordem }}" disabled />
+    </p>
+
+    <a href="{% url 'categoria' %}" class="btn btn-secondary">Voltar</a>
+
+    <a href="{% url 'editar_categoria' categoria.id %}" class="btn btn-warning">Editar</a>
+  </div>
+  
+{% endblock %}

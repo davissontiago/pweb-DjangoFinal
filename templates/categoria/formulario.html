@@ -4,7 +4,15 @@
 {% block titulo_conteudo  %} Formulário de Categoria {% endblock %}
 
 
-{% block conteudo  %}  
+{% block conteudo  %}
+    
+{% if form.errors %}
+<ul> 
+    {% for field, errors in form.errors.items %}
+        <li>{{ field }}: {{ errors}}</li> 
+    {% endfor %} 
+</ul> 
+{% endif %}
 
 <form method="post">
     {% csrf_token %}

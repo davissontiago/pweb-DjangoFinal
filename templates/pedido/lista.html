@@ -33,7 +33,8 @@
           <td>?</td>
           <td>
             <button onClick="location='{% url "detalhes_pedido" pedido.id %}'" type="button" class="btn btn-primary btn-sm">Detalhes</button>
-            <a href="" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja remover este registro?');">Remover</a>
+            <a href="{% url "remover_pedido" pedido.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja remover este registro?');">Remover</a>
+            </td> 
           </td>
         </tr>
       {% endfor %}

@@ -244,6 +244,13 @@ def detalhes_pedido(request, id):
     }
     return render(request, 'pedido/detalhes.html',contexto )
 
+def remover_pedido(request, id):
+    pedido = get_object_or_404(Pedido, pk=id)
+    pedido.delete()
+    messages.success(request, 'pedido removido com sucesso!')
+    return redirect('pedido')
+    
+
 
 
 

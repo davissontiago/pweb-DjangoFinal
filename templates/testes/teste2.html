@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block titulo_conteudo %} Teste 2 {% endblock titulo_conteudo %}
+
+{% block conteudo %} 
+
+<form>
+    <div class="mb-3 p-3 border rounded">
+        <h5>Buscar Categoria</h5>
+
+        <input type="text" 
+               class="form-control autocomplete" 
+               id="busca_categoria"
+               placeholder=""
+               data-url="{% url 'buscar_dados' 'home.Categoria' %}" 
+               data-hidden="#id_categoria_hidden">
+    </div>
+
+
+    <div class="mb-3 p-3 border rounded">
+        <h5>Buscar Cliente</h5>
+      
+        <input type="text" 
+               class="form-control autocomplete" 
+               id="busca_cliente"
+               placeholder=""
+               data-url="{% url 'buscar_dados' 'home.Cliente' %}" 
+               data-hidden="#id_cliente_hidden">
+
+    </div>
+
+
+    <div class="mb-3 p-3 border rounded">
+        <h5>Buscar Produto</h5>
+        
+        <input type="text" 
+               class="form-control autocomplete" 
+               id="busca_produto"
+               placeholder=""
+               data-url="{% url 'buscar_dados' 'home.Produto' %}" 
+               data-hidden="#id_produto_hidden">
+
+    </div>
+
+</form>
+
+{% endblock conteudo %}
+
+
+{% block javascript %}
+<script>
+    $(document).ready(function() {
+        
+        // Esta função pega TODOS os inputs com a classe 'autocomplete'
+        $('.autocomplete').each(function() {
+            var $input = $(this);                 // O campo de texto atual
+            var url = $input.data('url');         // A URL específica (Categoria, Cliente ou Produto)
+            var hiddenSelector = $input.data('hidden'); // O ID do campo oculto correspondente
+            var $hidden = $(hiddenSelector);
+
+            $input.autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: url,
+                        dataType: "json",
+                        data: {
+                            q: request.term // Termo digitado
+                        },
+                        success: function(data) {
+                            // O Django retorna uma lista de dicionários
+                            response(data);
+                        },
+                        error: function(xhr) {
+                            console.log("Erro na busca: " + xhr.statusText);
+                        }
+                    });
+                },
+                minLength: 1, // Começa a buscar com 1 letra (pode aumentar para 2 ou 3)
+                select: function(event, ui) {
+                    // Quando o usuário clica numa opção:
+                    
+                    // 1. Preenche o campo de texto com o Nome (label)
+                    $input.val(ui.item.label);
+                    
+                    // 2. Preenche o campo oculto com o ID (value/id)
+                    $hidden.val(ui.item.id);
+                    
+                    // Impede o comportamento padrão de substituir o texto pelo ID
+                    return false;
+                }
+            });
+        });
+        
+    });
+</script>
+{% endblock javascript %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block titulo_conteudo %} Listagem de Produtos {% endblock titulo_conteudo %}
+
+{% block conteudo %} 
+
+<button onclick="location.href='{% url 'form_produto' %}'"  class="btn btn-primary">Inserir Novo</button>
+
+<button onclick="location.href='{% url 'produto' %}'"  class="btn btn-primary">Recarregar</button>
+
+
+<table style="margin-top:15px" class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th>ID</th>
+        <th>Imagem</th>
+        <th>Nome</th>
+        <th>Preço(R$)</th>
+        <th>Categoria</th>
+        <th>Qtde</th>
+         <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for produto in lista %}
+      <tr>  
+        <td>{{ produto.id }}</td>
+        <td>
+                {% if produto.img_base64 %}
+                    <img src="{{ produto.img_base64 }}" alt="{{ produto.nome }}" style="height: 50px; width: auto;">
+                {% else %}
+                    <span class="text-muted">Sem imagem</span>
+                {% endif %}
+          </td>
+        <td>{{ produto.nome }}</td>
+        <td>{{ produto.preco}}</td>
+        <td>{{ produto.categoria }}</td>
+        <td>{{ produto.estoque.qtde }}</td>
+        <td>
+          <a href="{% url 'detalhes_produto' produto.id %}" class="btn btn-info btn-sm">Detalhes</a>
+          <a href="{% url 'ajustar_estoque' produto.id %}" class="btn btn-success btn-sm">Estoque</a>
+          <a href="{% url 'editar_produto' produto.id %}" class="btn btn-warning btn-sm">Editar</a>
+          <a href="{% url 'remover_produto' produto.id %}" class="btn btn-danger btn-sm" 
+          onclick="return confirm('Tem certeza que deseja remover este registro?');">Remover</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+{% endblock conteudo %}

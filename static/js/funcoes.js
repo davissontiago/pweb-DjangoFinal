@@ -1,5 +1,4 @@
 function autoComplete(inputSelector) {
-    // Obtemos a URL e o seletor do campo hidden dos atributos data-url e data-hidden do input
     var inputElement = $(inputSelector);
     var buscaUrl = inputElement.data('url');
     var hiddenSelector = inputElement.data('hidden');
@@ -7,24 +6,26 @@ function autoComplete(inputSelector) {
     $(inputSelector).autocomplete({
         source: function(request, response) {
             $.ajax({
-                url: buscaUrl,  // URL obtida do atributo data-url
+                url: buscaUrl,
                 dataType: "json",
                 data: {
-                    q: request.term  // O termo digitado no campo de entrada
+                    q: request.term
                 },
                 success: function(data) {
+                    // CORREÇÃO AQUI: 
+                    // O Python já manda 'label' e 'value', então usamos eles diretamente.
                     response($.map(data, function(item) {
                         return {
-                            label: item.nome,  // O que será exibido na lista
-                            value: item.nome,  // O valor que será preenchido no campo de entrada
-                            id: item.id        // O ID que será preenchido no campo hidden
+                            label: item.label, // Antes estava item.nome
+                            value: item.value, // Antes estava item.nome
+                            id: item.id
                         };
                     }));
                 }
             });
         },
         select: function(event, ui) {
-            $(hiddenSelector).val(ui.item.id);  // Atualiza o campo hidden com o ID selecionado
+            $(hiddenSelector).val(ui.item.id);
         }
     });
 }

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+
+{% block titulo  %} Contato {% endblock %}
+
+
+{% block titulo_conteudo %} Detalhes do Produto {% endblock %}
+
+
+
+
+
+
+{% block conteudo  %}  
+   
+<p>
+   <label >ID:</label><br>
+   <span class="form-control">{{produto.id}}</span>
+  
+</p>
+
+
+<p>
+   <label >Nome:</label><br>
+   <span class="form-control">{{produto.nome}}</span>
+</p>
+
+
+<p>
+   <label >Preço R$:</label><br>
+   <span class="form-control">{{produto.preco}}</span>
+</p>
+
+
+<p>
+   <label >Imagem:</label><br>
+   <span class="form-control"> 
+      <img  src="{{produto.img_base64}} " width="200" height="200">
+    </span>
+</p>
+
+<a class="btn btn-secondary" href="{% url 'produto' %}" >Voltar</a>
+<a href="{% url 'editar_produto' produto.id %}" class="btn btn-warning">Editar</a>
+
+
+
+
+{% endblock %}

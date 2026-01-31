@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>System Hacked</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        canvas {
+            display: block;
+        }
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #0F0;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 2px solid #0F0;
+            text-align: center;
+            display: none; /* Começa oculto */
+        }
+        .btn-voltar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #0F0;
+            text-decoration: none;
+            border: 1px solid #0F0;
+            padding: 10px 20px;
+            font-weight: bold;
+            transition: 0.3s;
+            z-index: 100;
+        }
+        .btn-voltar:hover {
+            background: #0F0;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'index' %}" class="btn-voltar">VOLTAR PARA O SISTEMA</a>
+    
+    <div class="message" id="secretMessage">
+        <h1>VOCÊ ENCONTROU O SEGREDO!</h1>
+        <p>Parabéns por explorar o sistema.</p>
+        <p>Desenvolvido por: <strong>Dávisson Tiago</strong></p>
+    </div>
+
+    <canvas id="matrix"></canvas>
+
+    <script>
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        // Faz o canvas ocupar a tela toda
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Caracteres que vão cair (Katana + Números + Letras)
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const alphabet = katakana + latin + nums;
+
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+
+        const rainDrops = [];
+
+        // Inicializa as posições y das gotas
+        for( let x = 0; x < columns; x++ ) {
+            rainDrops[x] = 1;
+        }
+
+        const draw = () => {
+            // Fundo preto translúcido para dar o efeito de rastro
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0'; // Cor verde hacker
+            ctx.font = fontSize + 'px monospace';
+
+            for(let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+                if(rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975){
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        };
+
+        setInterval(draw, 30);
+
+        // Mostra a mensagem secreta após 3 segundos
+        setTimeout(() => {
+            document.getElementById('secretMessage').style.display = 'block';
+        }, 3000);
+
+        // Ajusta o tamanho se redimensionar a janela
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

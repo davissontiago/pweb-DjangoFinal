@@ -2,6 +2,11 @@ import locale
 import random
 from decimal import Decimal
 from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.dispatch import receiver
+from django.utils import timezone
+from datetime import timedelta
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=100)
@@ -204,5 +209,51 @@ class Pagamento(models.Model):
         if self.data_pgto:
             return self.data_pgto.strftime('%d/%m/%Y %H:%M')
         return None
+    
+class HackerLog(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    data_descoberta = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"HACKER DETECTADO: {self.usuario.username} em {self.data_descoberta}"
+    
+class RegistroAcesso(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    login_data = models.DateTimeField(auto_now_add=True)
+    logout_data = models.DateTimeField(null=True, blank=True)
+    # NOVO CAMPO:
+    ultima_atividade = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Acesso de {self.usuario.username}"
+
+    @property
+    def tempo_permanencia(self):
+        """Calcula o tempo baseado na última vez que o usuário mexeu no sistema"""
+        fim = self.logout_data if self.logout_data else self.ultima_atividade
+        
+        if fim:
+            diferenca = fim - self.login_data
+            # Remove os milisegundos para ficar limpo
+            return str(diferenca).split('.')[0]
+        
+        return "Logado agora..."
+
+# --- SINAIS (A MÁGICA ACONTECE AQUI) ---
+
+# 1. Dispara quando o usuário faz LOGIN
+@receiver(user_logged_in)
+def registrar_login(sender, request, user, **kwargs):
+    RegistroAcesso.objects.create(usuario=user)
+
+# 2. Dispara quando o usuário faz LOGOUT (Clica em Sair)
+@receiver(user_logged_out)
+def registrar_logout(sender, request, user, **kwargs):
+    # Pega o último registro desse usuário que ainda não tem data de saída
+    registro = RegistroAcesso.objects.filter(usuario=user, logout_data__isnull=True).last()
+    
+    if registro:
+        registro.logout_data = timezone.now()
+        registro.save()
 
 

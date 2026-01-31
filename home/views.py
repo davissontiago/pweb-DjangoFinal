@@ -5,6 +5,7 @@ from django.apps import apps
 from django.http import JsonResponse
 from .models import *
 from .forms import *
+from .models import HackerLog
 
 @login_required
 def index(request):
@@ -437,8 +438,10 @@ def cancelar_pedido(request, id):
     return redirect('detalhes_pedido', id=id)
 
 
-
-
-
-
-
+def easter_egg(request):
+    # Se o usuário estiver logado, registramos o feito
+    if request.user.is_authenticated:
+        # get_or_create evita duplicatas (só registra a primeira vez que ele entra)
+        HackerLog.objects.get_or_create(usuario=request.user)
+    
+    return render(request, 'easter_egg.html')

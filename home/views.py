@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 from django.apps import apps 
 from django.http import JsonResponse
 from .models import *
@@ -7,7 +8,21 @@ from .forms import *
 
 @login_required
 def index(request):
-    return render(request,'index.html')
+    # Contagens básicas
+    qtd_pedidos = Pedido.objects.count()
+    qtd_produtos = Produto.objects.count()
+    qtd_clientes = Cliente.objects.count()
+    
+    # Informação Extra: Soma de todos os pagamentos registrados no sistema
+    faturamento = Pagamento.objects.aggregate(Sum('valor'))['valor__sum'] or 0
+    
+    contexto = {
+        'qtd_pedidos': qtd_pedidos,
+        'qtd_produtos': qtd_produtos,
+        'qtd_clientes': qtd_clientes,
+        'faturamento': faturamento, # Passando o extra
+    }
+    return render(request, 'index.html', contexto)
 
 @login_required
 def categoria(request):
@@ -317,6 +332,71 @@ def remover_item_pedido(request, id):
     except ItemPedido.DoesNotExist:
         messages.error(request, 'Item não encontrado')
         return redirect('pedido')
+
+@login_required
+def form_pagamento(request, id):
+    pedido = get_object_or_404(Pedido, pk=id)
+    
+    if request.method == 'POST':
+        form = PagamentoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Pagamento registrado com sucesso')
+            return redirect('form_pagamento', id=pedido.id)
+    else:
+        # Inicializa o formulário JÁ com o pedido vinculado
+        form = PagamentoForm(initial={'pedido': pedido})
+        
+    contexto = { 'pedido': pedido, 'form': form }
+    return render(request, 'pedido/pagamento.html', contexto)
+
+@login_required
+def editar_pagamento(request, id):
+    # Busca o pagamento ou retorna erro 404
+    pagamento = get_object_or_404(Pagamento, pk=id)
+    pedido = pagamento.pedido # Guarda o pedido para poder voltar pra ele depois
+
+    if request.method == 'POST':
+        form = PagamentoForm(request.POST, instance=pagamento)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Pagamento atualizado com sucesso!')
+            # Redireciona para a tela de pagamentos do PEDIDO (usando o ID do pedido)
+            return redirect('form_pagamento', id=pedido.id) 
+    else:
+        form = PagamentoForm(instance=pagamento)
+    
+    contexto = {
+        'pedido': pedido,
+        'form': form,
+    }
+    # Reutilizamos o mesmo template de pagamento
+    return render(request, 'pedido/pagamento.html', contexto)
+
+@login_required
+def remover_pagamento(request, id):
+    # Busca o pagamento
+    pagamento = get_object_or_404(Pagamento, pk=id)
+    pedido_id = pagamento.pedido.id # Guarda o ID do pedido antes de apagar
+    
+    # Apaga
+    pagamento.delete()
+    messages.success(request, 'Pagamento removido com sucesso!')
+    
+    # Volta para a lista de pagamentos deste pedido
+    return redirect('form_pagamento', id=pedido_id)
+
+@login_required
+def nota_fiscal(request, id):
+    try:
+        pedido = Pedido.objects.get(pk=id)
+    except Pedido.DoesNotExist:
+        # Caso o registro não seja encontrado, exibe a mensagem de erro
+        messages.error(request, 'Registro não encontrado')
+        return redirect('pedido')  # Redireciona para a listagem    
+    return render(request, 'pedido/nota_fiscal.html', {'pedido': pedido})
+
+
 
 
 

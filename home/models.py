@@ -1,4 +1,6 @@
 import locale
+import random
+from decimal import Decimal
 from django.db import models
 
 class Categoria(models.Model):
@@ -84,9 +86,64 @@ class Pedido(models.Model):
     @property
     def qtde_itens(self):
         return self.itempedido_set.count() 
+
+    # lista de todos os pagamentos realiados
+    @property
+    def pagamentos(self):
+        return Pagamento.objects.filter(pedido=self)    
     
-    def __str__(self):
-            return f"Pedido {self.id} - Cliente: {self.cliente.nome} - Status: {self.get_status_display()}"
+    #Calcula o total de todos os pagamentos do pedido
+    @property
+    def total_pago(self):
+        total = sum(pagamento.valor for pagamento in self.pagamentos.all())
+        return total    
+    
+    @property
+    def debito(self):
+        return self.total - self.total_pago
+
+    @property
+    def icms(self):
+        # Converte 0.18 para Decimal antes de multiplicar
+        return self.total * Decimal('0.18')
+
+    @property
+    def ipi(self):
+        return self.total * Decimal('0.04')
+
+    @property
+    def pis(self):
+        return self.total * Decimal('0.0165')
+
+    @property
+    def cofins(self):
+        return self.total * Decimal('0.076')
+
+    @property
+    def total_impostos(self):
+        return self.icms + self.ipi + self.pis + self.cofins
+
+    @property
+    def total_com_impostos(self):
+        return self.total + self.total_impostos
+
+    # --- Propriedade Chave de Acesso ---
+    @property
+    def chave_acesso(self):
+        # Formato de chave fake: UF + AA + MM + CNPJ + MOD + SER + NUM + ALEATORIO
+        # Ex: 35 24 01 12345678000199 55 001 000000001 12345678
+        uf = "21" # Maranhão (exemplo)
+        data = self.data_pedido.strftime('%y%m') if self.data_pedido else "0000"
+        cnpj = "12345678000195" # CNPJ da sua empresa fictícia
+        modelo = "55"
+        serie = "001"
+        numero_nota = f"{self.id:09}" # ID do pedido com 9 dígitos
+        codigo_aleatorio = f"{random.randint(10000000, 99999999)}"
+        
+        chave = f"{uf}{data}{cnpj}{modelo}{serie}{numero_nota}1{codigo_aleatorio}"
+        
+        # Formatação visual (opcional, separa a cada 4 dígitos)
+        return " ".join([chave[i:i+4] for i in range(0, len(chave), 4)])
 
 class ItemPedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
@@ -100,4 +157,32 @@ class ItemPedido(models.Model):
 
     def __str__(self):
         return f"{self.produto.nome} (Qtd: {self.qtde}) - Preço Unitário: {self.preco}"      
+    
+class Pagamento(models.Model):
+    DINHEIRO = 1
+    CARTAO = 2
+    PIX = 3
+    OUTRA = 4
+
+
+    FORMA_CHOICES = [
+        (DINHEIRO, 'Dinheiro'),
+        (CARTAO, 'Cartão'),
+        (PIX, 'Pix'),
+        (OUTRA, 'Outra'),
+    ]
+
+
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    forma = models.IntegerField(choices=FORMA_CHOICES)
+    valor = models.DecimalField(max_digits=10, decimal_places=2,blank=False)
+    data_pgto = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def data_pgtof(self):
+        """Retorna a data no formato DD/MM/AAAA HH:MM"""
+        if self.data_pgto:
+            return self.data_pgto.strftime('%d/%m/%Y %H:%M')
+        return None
+
 

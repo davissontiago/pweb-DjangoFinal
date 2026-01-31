@@ -89,3 +89,50 @@ class ItemPedidoForm(forms.ModelForm):
             'produto': forms.HiddenInput(),  # Campo oculto para armazenar o ID
             'qtde':forms.TextInput(attrs={'class': 'form-control',}),
         }
+        
+# home/forms.py
+
+class PagamentoForm(forms.ModelForm):
+    class Meta:
+        model = Pagamento
+        fields = ['pedido', 'forma', 'valor']
+        widgets = {
+            'pedido': forms.HiddenInput(), # O pedido fica oculto para o usuário não mudar
+            'forma': forms.Select(attrs={'class': 'form-control'}),
+            'valor': forms.TextInput(attrs={
+                'class': 'money form-control',
+                'maxlength': 500,
+                'placeholder': '0.000,00'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PagamentoForm, self).__init__(*args, **kwargs)
+        self.fields['valor'].localize = True
+        self.fields['valor'].widget.is_localized = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        valor = cleaned_data.get('valor')
+        pedido = cleaned_data.get('pedido')
+
+        if valor and pedido:
+            # Lógica para definir o limite:
+            # 1. Pega o débito atual do pedido (Total - Pago)
+            limite = pedido.debito
+            
+            # 2. Se for EDIÇÃO (já tem ID), precisamos "devolver" o valor antigo 
+            # para o limite antes de comparar. 
+            # Ex: Débito R$ 0. Edito pagamento de R$ 50 para R$ 60. 
+            # Limite real é 0 + 50 = 50. Novo valor 60 > 50 -> Erro.
+            if self.instance.pk:
+                limite += self.instance.valor
+
+            if valor > limite:
+                # Formata o número para exibir na mensagem de erro
+                from django.utils.numberformat import format
+                limite_fmt = format(limite, decimal_sep=',', grouping=3, thousand_sep='.')
+                
+                self.add_error('valor', f'O valor não pode ser maior que o débito restante (R$ {limite_fmt}).')
+
+        return cleaned_data 

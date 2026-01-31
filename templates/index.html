@@ -1,71 +1,51 @@
 {% extends "base.html" %}
 
-
-     
 {% block conteudo %} 
 
-
- 
 <div class="row">
     <div class="col-lg-3 col-md-6 col-sm-12">
-        <div class="card card-custom">
-            <div class="card-header card-header-custom">
-                <h5>New Orders</h5>
+        <div class="card card-custom mb-3"> <div class="card-header card-header-custom bg-primary text-white">
+                <h5><i class="fas fa-shopping-cart"></i> Pedidos Feitos</h5>
             </div>
-            <div class="card-body card-body-custom">
-                <h3>150</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 col-sm-12">
-        <div class="card card-custom">
-            <div class="card-header card-header-custom">
-                <h5>Bounce Rate</h5>
-            </div>
-            <div class="card-body card-body-custom">
-                <h3>53%</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 col-sm-12">
-        <div class="card card-custom">
-            <div class="card-header card-header-custom">
-                <h5>User Registrations</h5>
-            </div>
-            <div class="card-body card-body-custom">
-                <h3>44</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 col-sm-12">
-        <div class="card card-custom">
-            <div class="card-header card-header-custom">
-                <h5>Unique Visitors</h5>
-            </div>
-            <div class="card-body card-body-custom">
-                <h3>65</h3>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12">
-        <div class="card card-custom">
-            <div class="card-header card-header-custom">
-                <h5>New Orders</h5>
-            </div>
-            <div class="card-body card-body-custom">
-                <h3>150</h3>
+            <div class="card-body card-body-custom text-center">
+                <h3>{{ qtd_pedidos }}</h3>
             </div>
         </div>
     </div>
 
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="card card-custom mb-3">
+            <div class="card-header card-header-custom bg-success text-white">
+                <h5><i class="fas fa-box"></i> Produtos</h5>
+            </div>
+            <div class="card-body card-body-custom text-center">
+                <h3>{{ qtd_produtos }}</h3>
+            </div>
+        </div>
+    </div>
 
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="card card-custom mb-3">
+            <div class="card-header card-header-custom bg-info text-white">
+                <h5><i class="fas fa-users"></i> Clientes</h5>
+            </div>
+            <div class="card-body card-body-custom text-center">
+                <h3>{{ qtd_clientes }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-12">
+        <div class="card card-custom mb-3">
+            <div class="card-header card-header-custom bg-warning text-dark">
+                <h5><i class="fas fa-money-bill-wave"></i> Faturamento</h5>
+            </div>
+            <div class="card-body card-body-custom text-center">
+                <h3>R$ {{ faturamento|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
 
 </div>
-
 
 {% endblock conteudo %}
-      
- 

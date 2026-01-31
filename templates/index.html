@@ -2,9 +2,21 @@
 
 {% block conteudo %} 
 
+<style>
+    /* Pequeno efeito visual para indicar que é clicável */
+    .card-link:hover {
+        transform: translateY(-5px);
+        transition: transform 0.2s;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+</style>
+
 <div class="row">
     <div class="col-lg-3 col-md-6 col-sm-12">
-        <div class="card card-custom mb-3"> <div class="card-header card-header-custom bg-primary text-white">
+        <div class="card card-custom mb-3 card-link" 
+             style="cursor: pointer;" 
+             onclick="location='{% url 'pedido' %}'">
+            <div class="card-header card-header-custom bg-primary text-white">
                 <h5><i class="fas fa-shopping-cart"></i> Pedidos Feitos</h5>
             </div>
             <div class="card-body card-body-custom text-center">
@@ -14,7 +26,9 @@
     </div>
 
     <div class="col-lg-3 col-md-6 col-sm-12">
-        <div class="card card-custom mb-3">
+        <div class="card card-custom mb-3 card-link" 
+             style="cursor: pointer;" 
+             onclick="location='{% url 'produto' %}'">
             <div class="card-header card-header-custom bg-success text-white">
                 <h5><i class="fas fa-box"></i> Produtos</h5>
             </div>
@@ -25,7 +39,9 @@
     </div>
 
     <div class="col-lg-3 col-md-6 col-sm-12">
-        <div class="card card-custom mb-3">
+        <div class="card card-custom mb-3 card-link" 
+             style="cursor: pointer;" 
+             onclick="location='{% url 'cliente' %}'">
             <div class="card-header card-header-custom bg-info text-white">
                 <h5><i class="fas fa-users"></i> Clientes</h5>
             </div>
@@ -36,7 +52,9 @@
     </div>
 
     <div class="col-lg-3 col-md-6 col-sm-12">
-        <div class="card card-custom mb-3">
+        <div class="card card-custom mb-3 card-link" 
+             style="cursor: pointer;" 
+             onclick="location='{% url 'pedido' %}'">
             <div class="card-header card-header-custom bg-warning text-dark">
                 <h5><i class="fas fa-money-bill-wave"></i> Faturamento</h5>
             </div>

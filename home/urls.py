@@ -39,5 +39,6 @@ urlpatterns = [
     path('pedido/pagamento/editar/<int:id>', views.editar_pagamento, name='editar_pagamento'),
     path('pedido/pagamento/remover/<int:id>', views.remover_pagamento, name='remover_pagamento'),
     path('pedido/nota_fiscal/<int:id>/', views.nota_fiscal, name='nota_fiscal'),
+    path('pedido/cancelar/<int:id>', views.cancelar_pedido, name='cancelar_pedido'),
 
 ]

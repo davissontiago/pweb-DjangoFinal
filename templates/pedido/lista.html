@@ -28,7 +28,13 @@
           <td>{{ pedido.id }}</td>
           <td>{{ pedido.cliente.nome }}</td>
           <td>{{ pedido.data_pedidof }}</td>
-          <td>{{ pedido.get_status_display }}</td>
+          <td>
+            {% if pedido.status == 1 %} <span class="badge bg-primary">Novo</span>
+            {% elif pedido.status == 2 %} <span class="badge bg-warning text-dark">Em Andamento</span>
+            {% elif pedido.status == 3 %} <span class="badge bg-success">Concluído</span>
+            {% elif pedido.status == 4 %} <span class="badge bg-danger">Cancelado</span>
+            {% endif %}
+          </td>
           <td>{{ pedido.qtde_itens }}</td>
           <td>{{ pedido.total }}</td>
           <td>

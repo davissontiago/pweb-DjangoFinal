@@ -70,6 +70,26 @@ class Pedido(models.Model):
     produtos = models.ManyToManyField(Produto, through='ItemPedido')
     data_pedido = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=STATUS_CHOICES, default=NOVO)
+    
+    def atualizar_status(self):
+        """Atualiza o status automaticamente baseado nos pagamentos"""
+        
+        # Se o pedido já estiver cancelado, não mexemos
+        if self.status == self.CANCELADO:
+            return
+
+        # Lógica de atualização
+        if self.qtde_itens > 0 and self.debito <= 0:
+            # Se tem itens e não deve nada -> Concluído
+            self.status = self.CONCLUIDO
+        elif self.total_pago > 0:
+            # Se pagou alguma coisa mas ainda deve -> Em Andamento
+            self.status = self.EM_ANDAMENTO
+        else:
+            # Se não pagou nada -> Novo
+            self.status = self.NOVO
+            
+        self.save()
         
     @property
     def data_pedidof(self):

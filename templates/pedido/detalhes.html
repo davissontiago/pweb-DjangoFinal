@@ -23,6 +23,12 @@
     <button type="submit" class="btn btn-primary btn-sm">Salvar Produto</button>
     
     <button type="button" onclick="location='{% url "form_pagamento" pedido.id %}'" class="btn btn-primary btn-sm">Registrar Pagamento</button>
+    {% if pedido.status != 4 %} <a href="{% url 'cancelar_pedido' pedido.id %}" 
+       class="btn btn-danger btn-sm" 
+       onclick="return confirm('Tem certeza? Isso devolverá os itens ao estoque.')">
+       Cancelar Pedido
+    </a>
+    {% endif %}
 </form>
 <hr>
 

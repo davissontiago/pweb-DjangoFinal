@@ -293,6 +293,8 @@ def detalhes_pedido(request, id):
             
             # 3. Salva o item no pedido
             item.save()
+            
+            pedido.atualizar_status()
             messages.success(request, 'Produto adicionado com sucesso!')
             return redirect('detalhes_pedido', id=id)
             # --------------------------------
@@ -326,6 +328,7 @@ def remover_item_pedido(request, id):
         # ---------------------------------------------
         
         item.delete()
+        item.pedido.atualizar_status()
         messages.success(request, 'Item removido e estoque atualizado!')
         return redirect('detalhes_pedido', id=pedido_id)
         
@@ -341,6 +344,7 @@ def form_pagamento(request, id):
         form = PagamentoForm(request.POST)
         if form.is_valid():
             form.save()
+            pedido.atualizar_status()
             messages.success(request, 'Pagamento registrado com sucesso')
             return redirect('form_pagamento', id=pedido.id)
     else:
@@ -360,6 +364,7 @@ def editar_pagamento(request, id):
         form = PagamentoForm(request.POST, instance=pagamento)
         if form.is_valid():
             form.save()
+            pedido.atualizar_status()
             messages.success(request, 'Pagamento atualizado com sucesso!')
             # Redireciona para a tela de pagamentos do PEDIDO (usando o ID do pedido)
             return redirect('form_pagamento', id=pedido.id) 
@@ -381,6 +386,7 @@ def remover_pagamento(request, id):
     
     # Apaga
     pagamento.delete()
+    pedido.atualizar_status()
     messages.success(request, 'Pagamento removido com sucesso!')
     
     # Volta para a lista de pagamentos deste pedido
@@ -395,6 +401,40 @@ def nota_fiscal(request, id):
         messages.error(request, 'Registro não encontrado')
         return redirect('pedido')  # Redireciona para a listagem    
     return render(request, 'pedido/nota_fiscal.html', {'pedido': pedido})
+
+@login_required
+def cancelar_pedido(request, id):
+    pedido = get_object_or_404(Pedido, pk=id)
+    
+    # --- RESTRIÇÃO 1: Evitar cancelamento repetido ---
+    if pedido.status == Pedido.CANCELADO:
+        messages.warning(request, 'Este pedido já está cancelado.')
+        return redirect('detalhes_pedido', id=id)
+
+    # --- RESTRIÇÃO 2: Não cancelar pedidos já concluídos ---
+    if pedido.status == Pedido.CONCLUIDO:
+        messages.error(request, 'Não é possível cancelar um pedido que já foi Concluído.')
+        return redirect('detalhes_pedido', id=id)
+
+    # --- RESTRIÇÃO 3: Bloquear se houver pagamento (Segurança Financeira) ---
+    if pedido.total_pago > 0:
+        messages.error(request, f'O pedido tem pagamentos registrados (R$ {pedido.total_pago}). Remova os pagamentos antes de cancelar.')
+        return redirect('detalhes_pedido', id=id)
+
+    # Se passou por todas as regras, executa o cancelamento:
+    
+    # 1. Devolve o estoque
+    for item in pedido.itempedido_set.all():
+        estoque = item.produto.estoque
+        estoque.qtde += item.qtde
+        estoque.save()
+    
+    # 2. Atualiza o status
+    pedido.status = Pedido.CANCELADO
+    pedido.save()
+    
+    messages.success(request, 'Pedido cancelado com sucesso e produtos devolvidos ao estoque!')
+    return redirect('detalhes_pedido', id=id)
 
 
 
